@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.env
+credentials.txt
+output/
+data/
+.ipynb_checkpoints/
+examples/output
+src/__pycache__
