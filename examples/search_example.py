@@ -56,4 +56,4 @@ df = search_paired_products(
     output_csv="output/matched_frames.csv",
 )
 
-print(df.head())
+# print(df.head())
