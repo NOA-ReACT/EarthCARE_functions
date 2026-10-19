@@ -58,6 +58,7 @@ torcheval = ">=0.0.7, <0.0.8"
 monai = ">=1.5.2, <2"
 pystac-client = ">=0.9.0, <0.10"
 google-api-python-client = ">=2.200.0, <3"
+pvlib = ">=0.16.1, <0.17"
 
 [activation.env]
 PROJ_DATA = ".pixi/envs/default/share/proj"

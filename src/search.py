@@ -11,6 +11,9 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from pystac_client import Client
+import time
+import re
+from pystac_client.exceptions import APIError
 
 
 CATALOG_URL = "https://catalog.maap.eo.esa.int/catalogue/"
@@ -39,11 +42,13 @@ class Catalog:
         datetime=None,
         bbox=None,
         max_items=None,
+        max_attempts=3,
+        retry_delay=10,
     ):
         """
-        search by filter: product, version, datetime, bbox
+        Search by product, version, datetime and bbox.
 
-        max_items to eliminate search
+        Retry temporary ESA MAAP catalogue errors during pagination.
         """
 
         filter_query = f"productType = '{product}'"
@@ -53,25 +58,51 @@ class Catalog:
                 f" and version = '{version.lower()}'"
             )
 
-        item_search = self.catalog.search(
-            collections=collections,
-            filter=filter_query,
-            datetime=datetime,
-            bbox=bbox,
-            method="GET",
-            max_items=max_items,
-            limit=50,
-        )
+        retryable_statuses = (408, 429, 500, 502, 503, 504)
 
-        items = []
+        for attempt in range(1, max_attempts + 1):
 
-        for page_number, page in enumerate(
-            item_search.pages(), start=1
-        ):
-            page_items = list(page.items)
-            items.extend(page_items)
+            try:
+                item_search = self.catalog.search(
+                    collections=collections,
+                    filter=filter_query,
+                    datetime=datetime,
+                    bbox=bbox,
+                    method="GET",
+                    max_items=max_items,
+                    limit=50,
+                )
 
-        return items
+                items = []
+
+                for page_number, page in enumerate(
+                    item_search.pages(), start=1
+                ):
+                    page_items = list(page.items)
+                    items.extend(page_items)
+
+                return items
+
+            except APIError as e:
+
+                # pystac-client may expose the HTTP status only in the error message.
+                match = re.search(r"\b(408|429|500|502|503|504)\b", str(e))
+
+                if match is None:
+                    raise
+
+                status = int(match.group(1))
+
+                if status not in retryable_statuses:
+                    raise
+
+                if attempt == max_attempts:
+                    raise
+
+                delay = retry_delay * (2 ** (attempt - 1))
+
+                time.sleep(delay)
+
 
     def search_by_id(self, ids):
         """
@@ -99,6 +130,10 @@ def search_paired_products(
 ):
 
     """
+    dictionary = {
+    'AC__TC__2B': 'ba',
+    'ACM_CAP_2B': 'ba'
+    }
     products: dict with key: product_name (eg AC__TC__2B) and value version eg ba
 
     search for products and match them by orbit-frame

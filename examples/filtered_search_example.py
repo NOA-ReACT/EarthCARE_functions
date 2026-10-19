@@ -25,15 +25,16 @@ my_filter = partial(
 df = search_filtered(
     product="AC__TC__2B",
     filter_fn=my_filter,
-    version="ba",
+    # version="ba",
     datetime=[
-        "2025-01-01T00:00:00Z",
-        "2025-01-31T23:59:59Z",
+        "2026-01-01T00:00:00Z",
+        "2026-10-01T23:59:59Z",
     ],
-    bbox=[-11.0, 29.0, 40.0, 47.0],
-    max_items=3,
-    credentials_path="........................................./credentials.txt",
-    output_csv="output/filtered_results.csv",
+    # bbox=[-11.0, 29.0, 40.0, 47.0],
+    max_items=200,
+    daytime_only=True,
+    credentials_path="/home/dkarkani/Projects/EarthCARE_functions/credentials.txt",
+    output_csv="output/no_other_frames.csv",
 )
 
 # print(df.head())

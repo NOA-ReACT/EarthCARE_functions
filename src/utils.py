@@ -1,5 +1,8 @@
 import requests
 from aiohttp import ClientError, ClientResponseError
+import numpy as np
+import pandas as pd
+import pvlib
 
 
 def save_dataset(ds, output_path, product, output_format):
@@ -64,3 +67,28 @@ def is_retryable_error(error):
         current = current.__cause__ or current.__context__
 
     return False
+
+
+
+def calculate_sza(latitude, longitude, time):
+    """
+    Calculate solar zenith angles for EarthCARE profiles.
+
+    latitude, longitude: 1D arrays
+    time: 1D array of corresponding observation times
+    """
+
+    times = pd.to_datetime(time, utc=True)
+
+    sza = np.array([
+        pvlib.solarposition.get_solarposition(
+            times[i],
+            latitude[i],
+            longitude[i],
+        )["zenith"].iloc[0]
+        for i in range(len(latitude))
+    ])
+
+    return sza
+
+

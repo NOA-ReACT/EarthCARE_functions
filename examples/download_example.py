@@ -11,7 +11,7 @@ from parallel_download import download_parallel
 
 
 credentials_path = Path("/home/dkarkani/Projects/EarthCARE_functions/credentials.txt")
-csv_path =Path("output/matched_frames.csv")
+csv_path =Path("output/no_other_frames.csv")
 
 output_dir =Path("data")
 

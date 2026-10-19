@@ -4,7 +4,7 @@ __pycache__/
 *.egg-info/
 .env
 credentials.txt
-output/
+output/spatial_analysis
 data/
 .ipynb_checkpoints/
 examples/output
